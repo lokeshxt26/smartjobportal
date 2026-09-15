@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Profile - Smart Job Portal</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+</head>
+<body class="page-profile">
+
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark py-3 shadow-sm">
+    <div class="container">
+        <a class="navbar-brand fw-bold fs-4 text-white d-flex align-items-center gap-2" href="/">
+            <span class="portal-brand-badge">⚡</span> Smart Job Portal
+        </a>
+        <div class="navbar-nav ms-auto d-flex flex-row align-items-center gap-3">
+            <a href="/" class="btn btn-outline-light btn-sm">All Jobs</a>
+            <a href="/dashboard" class="btn btn-outline-light btn-sm">Dashboard</a>
+            
+            <div class="dropdown">
+                <a href="#" class="d-flex align-items-center text-white text-decoration-none dropdown-toggle gap-2" id="userMenu" data-bs-toggle="dropdown" aria-expanded="false">
+                    {% if current_user_pic %}
+                        <img src="/uploads/{{ current_user_pic }}" alt="Avatar" class="navbar-avatar">
+                    {% else %}
+                        <div class="navbar-avatar-placeholder">{{ current_user_name[:1]|upper }}</div>
+                    {% endif %}
+                    <span class="small fw-semibold d-none d-sm-inline">{{ current_user_name }}</span>
+                </a>
+                <ul class="dropdown-menu dropdown-menu-end shadow-sm" aria-labelledby="userMenu">
+                    <li><span class="dropdown-header small text-uppercase fw-bold">{{ current_user_role }}</span></li>
+                    <li><a class="dropdown-item active" href="/profile"><i class="bi bi-person me-2"></i>My Profile</a></li>
+                    <li><a class="dropdown-item" href="/dashboard"><i class="bi bi-speedometer2 me-2"></i>Dashboard</a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item text-danger" href="/logout"><i class="bi bi-box-arrow-right me-2"></i>Logout</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<div class="container my-5">
+    <div class="col-lg-9 mx-auto">
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                {% for msg in messages %}
+                    <div class="alert alert-success alert-dismissible fade show shadow-sm border-0 rounded-3 mb-4" role="alert">
+                        <i class="bi bi-check-circle-fill me-2"></i>{{ msg }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <div class="card profile-card shadow-sm border-0 overflow-hidden mb-4">
+            <!-- Profile Banner Header -->
+            <div class="profile-header-banner p-4 p-md-5 text-white position-relative">
+                <div class="row align-items-center position-relative z-2">
+                    <div class="col-auto">
+                        <div class="profile-avatar-wrapper position-relative">
+                            {% if user.profile_pic %}
+                                <img src="/uploads/{{ user.profile_pic }}" alt="Profile Picture" class="profile-avatar-lg" id="avatarPreview">
+                            {% else %}
+                                <div class="profile-avatar-placeholder-lg" id="avatarPreviewPlaceholder">
+                                    {{ user.name[:1]|upper }}
+                                </div>
+                                <img src="" alt="Profile Picture Preview" class="profile-avatar-lg d-none" id="avatarPreview">
+                            {% endif %}
+                            <label for="profilePicInput" class="avatar-upload-badge" title="Change Profile Picture">
+                                <i class="bi bi-camera-fill"></i>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="d-flex flex-wrap align-items-center gap-2 mb-1">
+                            <h2 class="fw-bold mb-0 text-white">{{ user.name }}</h2>
+                            <span class="badge bg-warning text-dark text-uppercase fw-bold">{{ user.role }}</span>
+                        </div>
+                        <p class="text-white-50 mb-2 fs-6">
+                            {{ user.headline or 'No headline specified yet' }}
+                        </p>
+                        <div class="d-flex flex-wrap gap-3 small text-white-50">
+                            <span><i class="bi bi-envelope me-1"></i> {{ user.email }}</span>
+                            {% if user.phone %}
+                                <span><i class="bi bi-telephone me-1"></i> {{ user.phone }}</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Profile Content & Form -->
+            <div class="card-body p-4 p-md-5 bg-white">
+                <div class="row mb-4">
+                    <div class="col-sm-6 mb-3 mb-sm-0">
+                        <div class="p-3 bg-light rounded-4 text-center border">
+                            <span class="text-muted small text-uppercase fw-semibold d-block">
+                                {% if user.role == 'recruiter' %}Active Job Listings{% elif user.role == 'jobseeker' %}Applications Filed{% else %}Registered Users{% endif %}
+                            </span>
+                            <span class="fs-2 fw-bold text-primary">
+                                {% if user.role == 'recruiter' %}{{ stats.jobs_posted_count }}{% elif user.role == 'jobseeker' %}{{ stats.applications_count }}{% else %}Admin{% endif %}
+                            </span>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="p-3 bg-light rounded-4 text-center border">
+                            <span class="text-muted small text-uppercase fw-semibold d-block">Account Status</span>
+                            <span class="fs-4 fw-bold text-success d-flex align-items-center justify-content-center gap-1 mt-1">
+                                <i class="bi bi-patch-check-fill"></i> Verified Member
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <h4 class="fw-bold text-dark mb-3">Edit Profile Information</h4>
+                <p class="text-muted small mb-4">Keep your professional identity, photo, and contact details up to date.</p>
+
+                <form method="POST" enctype="multipart/form-data">
+                    <input type="file" id="profilePicInput" name="profile_pic" class="d-none" accept="image/png,image/jpeg,image/webp,image/gif" onchange="previewAvatar(event)">
+                    <input type="hidden" id="removePicInput" name="remove_pic" value="0">
+
+                    <div class="p-3 rounded-4 bg-light border mb-4 d-flex justify-content-between align-items-center flex-wrap gap-2">
+                        <div class="d-flex align-items-center gap-3">
+                            <i class="bi bi-image fs-3 text-primary"></i>
+                            <div>
+                                <strong class="d-block text-dark small">Profile Avatar Image</strong>
+                                <span class="text-muted small">Accepts JPG, PNG, WEBP, or GIF (max 16MB)</span>
+                            </div>
+                        </div>
+                        <div class="d-flex gap-2">
+                            <label for="profilePicInput" class="btn btn-outline-primary btn-sm px-3">
+                                <i class="bi bi-upload me-1"></i> Upload New Picture
+                            </label>
+                            {% if user.profile_pic %}
+                                <button type="button" class="btn btn-outline-danger btn-sm px-3" onclick="markPicRemoval()">
+                                    <i class="bi bi-trash me-1"></i> Remove Photo
+                                </button>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-semibold text-secondary small">Full Name</label>
+                            <input type="text" name="name" class="form-control" value="{{ user.name }}" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-semibold text-secondary small">Email Address</label>
+                            <input type="email" class="form-control bg-light" value="{{ user.email }}" readonly title="Email address cannot be changed">
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-semibold text-secondary small">Professional Headline / Title</label>
+                            <input type="text" name="headline" class="form-control" value="{{ user.headline or '' }}" placeholder="e.g. Full-Stack Python Architect | React">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-semibold text-secondary small">Contact Phone Number</label>
+                            <input type="tel" name="phone" class="form-control" value="{{ user.phone or '' }}" placeholder="e.g. +1 (555) 234-5678">
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label fw-semibold text-secondary small">Bio / Professional Summary</label>
+                        <textarea name="bio" class="form-control" rows="4" placeholder="Brief summary of your skills, background, or hiring focus...">{{ user.bio or '' }}</textarea>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center pt-3 border-top">
+                        <a href="/dashboard" class="btn btn-outline-secondary">← Back to Dashboard</a>
+                        <button type="submit" class="btn btn-primary px-4 py-2 fw-semibold shadow-sm">
+                            <i class="bi bi-save me-1"></i> Save Profile Changes
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+function previewAvatar(event) {
+    const file = event.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const preview = document.getElementById('avatarPreview');
+            const placeholder = document.getElementById('avatarPreviewPlaceholder');
+            preview.src = e.target.result;
+            preview.classList.remove('d-none');
+            if (placeholder) {
+                placeholder.classList.add('d-none');
+            }
+            document.getElementById('removePicInput').value = '0';
+        };
+        reader.readAsDataURL(file);
+    }
+}
+
+function markPicRemoval() {
+    if (confirm('Reset your profile photo to the default avatar?')) {
+        document.getElementById('removePicInput').value = '1';
+        const preview = document.getElementById('avatarPreview');
+        const placeholder = document.getElementById('avatarPreviewPlaceholder');
+        preview.classList.add('d-none');
+        if (placeholder) {
+            placeholder.classList.remove('d-none');
+        }
+        alert('Photo marked for removal. Click "Save Profile Changes" to finalize.');
+    }
+}
+</script>
+</body>
+</html>
