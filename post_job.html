@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% if is_edit %}Edit Job Opening{% else %}Post Job{% endif %} - Smart Job Portal</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+</head>
+<body class="page-post-job">
+
+<nav class="navbar navbar-expand-lg navbar-dark bg-transparent border-bottom border-light border-opacity-10 py-3">
+    <div class="container">
+        <a class="navbar-brand fw-bold text-white fs-4 d-flex align-items-center gap-2" href="/">
+            <span class="portal-brand-badge">⚡</span> Smart Job Portal
+        </a>
+        <div class="d-flex align-items-center gap-2">
+            <a href="/dashboard" class="btn btn-outline-light btn-sm">Dashboard</a>
+            <a href="/logout" class="btn btn-danger btn-sm">Logout</a>
+        </div>
+    </div>
+</nav>
+
+<div class="container my-5">
+    <div class="col-md-9 col-lg-8 mx-auto">
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                {% for msg in messages %}
+                    <div class="alert alert-warning alert-dismissible fade show shadow-sm border-0 rounded-3 mb-4" role="alert">
+                        <i class="bi bi-exclamation-circle me-2"></i>{{ msg }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <div class="card post-job-card p-3 p-md-4 border-0 shadow-lg">
+            <div class="card-body">
+                <div class="mb-4">
+                    <span class="badge bg-primary bg-opacity-10 text-primary px-3 py-2 mb-2 rounded-pill fw-semibold">
+                        {% if is_edit %}Editing Job #{{ job.id }}{% else %}Recruitment Pipeline{% endif %}
+                    </span>
+                    <h2 class="fw-bold text-dark mb-1">{% if is_edit %}Update Job Posting{% else %}Create Job Opening{% endif %}</h2>
+                    <p class="text-muted small mb-0">Publish clear requisitions to reach experienced candidates immediately</p>
+                </div>
+
+                <form method="POST">
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold text-secondary small">Position / Job Title <span class="text-danger">*</span></label>
+                        <input
+                            name="title"
+                            class="form-control"
+                            placeholder="e.g. Senior Full-Stack Python Engineer"
+                            value="{% if job %}{{ job.title }}{% endif %}"
+                            required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold text-secondary small">Company / Organization <span class="text-danger">*</span></label>
+                        <input
+                            name="company"
+                            class="form-control"
+                            placeholder="e.g. Acme Tech Solutions"
+                            value="{% if job %}{{ job.company }}{% endif %}"
+                            required>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-semibold text-secondary small">Location</label>
+                            <input
+                                name="location"
+                                class="form-control"
+                                placeholder="e.g. Remote / Austin, TX"
+                                value="{% if job %}{{ job.location or '' }}{% endif %}">
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-semibold text-secondary small">Compensation / Salary</label>
+                            <input
+                                name="salary"
+                                class="form-control"
+                                placeholder="e.g. $100,000 - $135,000"
+                                value="{% if job %}{{ job.salary or '' }}{% endif %}">
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label fw-semibold text-secondary small">Job Description & Responsibilities <span class="text-danger">*</span></label>
+                        <textarea
+                            name="description"
+                            class="form-control"
+                            rows="6"
+                            placeholder="Describe expectations, required skills, benefits, and team culture..."
+                            required>{% if job %}{{ job.description }}{% endif %}</textarea>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center">
+                        <a href="/dashboard" class="btn btn-outline-secondary">← Back to Dashboard</a>
+                        <button type="submit" class="btn btn-primary px-4 py-2 fw-semibold shadow-sm">
+                            {% if is_edit %}💾 Save Changes{% else %}🚀 Publish Requisition{% endif %}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
